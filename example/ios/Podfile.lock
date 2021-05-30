@@ -1,0 +1,22 @@
+PODS:
+  - Flutter (1.0.0)
+  - screen_capture_utils (0.0.1):
+    - Flutter
+
+DEPENDENCIES:
+  - Flutter (from `Flutter`)
+  - screen_capture_utils (from `.symlinks/plugins/screen_capture_utils/ios`)
+
+EXTERNAL SOURCES:
+  Flutter:
+    :path: Flutter
+  screen_capture_utils:
+    :path: ".symlinks/plugins/screen_capture_utils/ios"
+
+SPEC CHECKSUMS:
+  Flutter: 434fef37c0980e73bb6479ef766c45957d4b510c
+  screen_capture_utils: d94332579d8a55b820a43ca24aacbde4005d8206
+
+PODFILE CHECKSUM: aafe91acc616949ddb318b77800a7f51bffa2a4c
+
+COCOAPODS: 1.10.1
