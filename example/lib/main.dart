@@ -70,15 +70,13 @@ class _MyAppState extends State<MyApp> {
               guarding == false
                   ? CupertinoButton.filled(
                       onPressed: () {
+                        /// Guard Screen
                         screenCaptureUtils.guard();
                       },
                       child: Text('Guard'),
                     )
                   : CupertinoButton.filled(
                       onPressed: () {
-                        /// Guard Screen
-                        screenCaptureUtils.guard();
-
                         /// Unguard Screen
                         screenCaptureUtils.unGuard();
                       },
