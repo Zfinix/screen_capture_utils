@@ -9,20 +9,27 @@ class ScreenCaptureUtils {
       MethodChannel('screen_capture_utils.dart');
 
   /// On Screen Captured Callback
-  final void Function(String?)? onScreenCaptured;
+  final void Function(bool) oniOSScreenCaptured;
 
-  /// Callback for screen guarding status `(Android Only)`
-  final void Function(bool)? isGuarding;
+  final void Function(String?) onScreenCaptured;
+
+  /// Callback for screen guarding status
+  final void Function(bool) guardingStatus;
 
   /// On Screen Captured With Denied Permission `(Android Only)`
   final void Function()? onScreenCapturedWithDeniedPermission;
 
   ScreenCaptureUtils({
-    this.onScreenCaptured,
-    this.isGuarding,
+    required this.onScreenCaptured,
+    required this.oniOSScreenCaptured,
+    required this.guardingStatus,
     this.onScreenCapturedWithDeniedPermission,
   }) {
-    _dart_channel.setMethodCallHandler(methodCallHandler);
+    try {
+      _dart_channel.setMethodCallHandler(methodCallHandler);
+    } catch (e) {
+      print(e.toString());
+    }
   }
 
   /// Initialize plugin
@@ -32,33 +39,47 @@ class ScreenCaptureUtils {
 
   /// Guards the screen from screen capture `(Android only)`
   void guard() async {
-    await _channel.invokeMethod('guard');
-    if (isGuarding != null) isGuarding!(true);
+    try {
+      await _channel.invokeMethod('guard');
+      guardingStatus(true);
+    } catch (e) {
+      print(e.toString());
+    }
   }
 
   /// Removes guard screen from screen capture `(Android only)`
   void unGuard() async {
     await _channel.invokeMethod('unGuard');
-    if (isGuarding != null) isGuarding!(false);
+    guardingStatus(false);
   }
 
-  /// Handle method calls for  screen capture utils callbacks
-  Future methodCallHandler(MethodCall call) async {
-    switch (call.method) {
-      case 'onScreenCaptured':
-        if (onScreenCaptured != null) {
-          onScreenCaptured!(
+  /// Handle method calls for screen capture utils callbacks
+  Future<void> methodCallHandler(MethodCall call) async {
+    try {
+      switch (call.method) {
+        case 'onIOSScreenCaptured':
+          oniOSScreenCaptured(call.arguments);
+          if (call.arguments) {
+            guard();
+          } else {
+            unGuard();
+          }
+          break;
+        case 'onScreenCaptured':
+          onScreenCaptured(
             call.arguments != null ? call.arguments['path'] : '',
           );
-        }
-        return;
-      case 'onScreenCapturedWithDeniedPermission':
-        if (onScreenCapturedWithDeniedPermission != null) {
-          onScreenCapturedWithDeniedPermission!();
-        }
-        return;
-      default:
-        throw MissingPluginException('not Implemented');
+          break;
+        case 'onScreenCapturedWithDeniedPermission':
+          if (onScreenCapturedWithDeniedPermission != null) {
+            onScreenCapturedWithDeniedPermission!();
+          }
+          break;
+        default:
+          throw MissingPluginException('not Implemented');
+      }
+    } catch (e) {
+      print(e.toString());
     }
   }
 }

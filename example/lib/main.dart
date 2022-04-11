@@ -1,4 +1,3 @@
-import 'dart:io';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -15,7 +14,7 @@ class MyApp extends StatefulWidget {
   _MyAppState createState() => _MyAppState();
 }
 
-class _MyAppState extends State<MyApp> {
+class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
   String path = 'Unknown';
   bool guarding = false;
   late ScreenCaptureUtils screenCaptureUtils;
@@ -24,6 +23,25 @@ class _MyAppState extends State<MyApp> {
   void initState() {
     super.initState();
     initPlatformState();
+
+    WidgetsBinding.instance!.addObserver(this);
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance!.removeObserver(this);
+    super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    switch (state) {
+      case AppLifecycleState.resumed:
+        screenCaptureUtils.unGuard();
+        break;
+      default:
+        screenCaptureUtils.guard();
+    }
   }
 
   // Platform messages are asynchronous, so we initialize in an async method.
@@ -34,7 +52,9 @@ class _MyAppState extends State<MyApp> {
         onScreenCaptured: (_) {
           print('Captured: $_');
         },
-        isGuarding: (val) {
+        guardingStatus: (val) {
+          print('guarding: $val');
+
           setState(() {
             guarding = val;
           });
@@ -44,6 +64,11 @@ class _MyAppState extends State<MyApp> {
           print('$msg');
           setState(() {
             path = msg;
+          });
+        },
+        oniOSScreenCaptured: (val) {
+          setState(() {
+            guarding = val;
           });
         },
       )..intialize();
